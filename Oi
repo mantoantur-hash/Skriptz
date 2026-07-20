@@ -1,0 +1,14 @@
+$CaminhoScript = "C:\Scripts\FecharNavegadores.ps1"
+$Desktop = [Environment]::GetFolderPath("Desktop")
+$CaminhoAtalho = Join-Path $Desktop "Fechar Navegadores.lnk"
+
+$WScriptShell = New-Object -ComObject WScript.Shell
+$Atalho = $WScriptShell.CreateShortcut($CaminhoAtalho)
+
+# Configura o atalho para chamar o PowerShell ocultando a janela de execução se necessário
+$Atalho.TargetPath = "powershell.exe"
+$Atalho.Arguments = "-ExecutionPolicy Bypass -NoProfile -File `"$CaminhoScript`""
+$Atalho.IconLocation = "shell32.dll,27" # Ícone de desligar/fechar do Windows
+$Atalho.Save()
+
+Write-Host "Atalho criado com sucesso na Área de Trabalho!" -ForegroundColor Green
