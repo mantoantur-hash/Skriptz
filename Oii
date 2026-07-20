@@ -1,0 +1,30 @@
+# Lista dos executáveis dos principais navegadores
+$Navegadores = @("chrome", "msedge", "firefox", "brave", "opera")
+
+Write-Host "Iniciando encerramento correto dos navegadores..." -ForegroundColor Cyan
+
+foreach ($App in $Navegadores) {
+    # Busca os processos do navegador ativos
+    $Processos = Get-Process -Name $App -ErrorAction SilentlyContinue
+
+    if ($Processos) {
+        Write-Host "Fechando $App suavemente..." -ForegroundColor Yellow
+        
+        # Envia comando de fechar janela para a aplicação fechar abas e salvar dados
+        $Processos | Where-Object { $_.MainWindowHandle -ne 0 } | ForEach-Object {
+            $_.CloseMainWindow() | Out-Null
+        }
+
+        # Aguarda 3 segundos para o sistema processar a saída de memória
+        Start-Sleep -Seconds 3
+
+        # Verifica se sobrou algum processo fantasma/preso em segundo plano e encerra
+        $ProcessosRestantes = Get-Process -Name $App -ErrorAction SilentlyContinue
+        if ($ProcessosRestantes) {
+            Write-Host "Limpando processos residuais em segundo plano do $App..." -ForegroundColor Red
+            $ProcessosRestantes | Stop-Process -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
+Write-Host "Todos os navegadores e abas foram encerrados!" -ForegroundColor Green
